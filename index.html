@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Forex Signal Analyzer</title>
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    :root{--bg:#07111f;--panel:#0d1b2a;--panel2:#10233a;--text:#e8eef7;--muted:#8ea4c2;--blue:#3ea6ff;--orange:#ff9f43;--green:#25d366;--red:#ff5d5d;--pink:#ff4da6;--line:#22344d}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#050b14,#07111f 35%,#050b14);color:var(--text)}
+    header{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap;background:rgba(10,20,34,.85);backdrop-filter:blur(12px);position:sticky;top:0;z-index:10}
+    h1{margin:0;font-size:20px} .sub{color:var(--muted);font-size:13px;margin-top:4px}
+    .wrap{display:grid;grid-template-columns:1.6fr .9fr;gap:14px;padding:14px;min-height:calc(100vh - 72px)}
+    .card{background:linear-gradient(180deg,var(--panel),#091521);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .chartBox{height:640px;position:relative} #chart{position:absolute;inset:0}
+    .side{display:grid;gap:14px;align-content:start}
+    .panel{padding:16px;background:linear-gradient(180deg,var(--panel2),#091521);border:1px solid var(--line);border-radius:16px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.kpi{padding:12px;border-radius:14px;background:#0a1625;border:1px solid #1d2d44}
+    .label{color:var(--muted);font-size:12px}.value{font-size:20px;font-weight:700;margin-top:4px}
+    .signal{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}.dot{width:12px;height:12px;border-radius:50%}
+    .btns{display:flex;gap:10px;flex-wrap:wrap}.btn{cursor:pointer;border:1px solid #28415f;background:#0c1726;color:var(--text);padding:10px 12px;border-radius:12px;font-weight:600}
+    .btn.active{background:#15314f;border-color:#2e5c8f}
+    .note{color:var(--muted);font-size:12px;line-height:1.5}
+    input{width:100%;padding:11px 12px;border-radius:12px;border:1px solid #28415f;background:#08111d;color:var(--text)}
+    .list{display:grid;gap:8px}.item{padding:11px 12px;border:1px solid #22344d;border-radius:12px;background:#0a1524}
+    a{color:#8ec8ff;text-decoration:none}
+    @media (max-width: 980px){.wrap{grid-template-columns:1fr}.chartBox{height:520px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Forex Signal Analyzer</h1>
+      <div class="sub">GBP/USD dan EUR/USD · candlestick + Symmetrical MA Ribbon + Vertical Box Histogram</div>
+    </div>
+    <div class="sub">API key sudah dipasang di kode: <strong>8cd5e84fa4564322b907aaddac29b059</strong></div>
+  </header>
+
+  <div class="wrap">
+    <div class="card chartBox">
+      <div id="chart"></div>
+    </div>
+
+    <div class="side">
+      <div class="panel">
+        <div class="btns" style="margin-bottom:12px">
+          <button class="btn active" data-pair="GBP/USD">GBP/USD</button>
+          <button class="btn" data-pair="EUR/USD">EUR/USD</button>
+        </div>
+        <div class="grid">
+          <div class="kpi"><div class="label">Pair</div><div class="value" id="pairName">GBP/USD</div></div>
+          <div class="kpi"><div class="label">Timeframe</div><div class="value">15m</div></div>
+          <div class="kpi"><div class="label">Harga Terakhir</div><div class="value" id="lastPrice">-</div></div>
+          <div class="kpi"><div class="label">Sinyal</div><div class="value" id="signalText">-</div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="signal"><span class="dot" id="signalDot"></span><span id="signalMain">Menunggu data...</span></div>
+        <div class="note" id="signalNote" style="margin-top:10px">Akan membaca data intraday dari Alpha Vantage, lalu menghitung fast MA, slow MA, mirror MA, dan zona box histogram.</div>
+      </div>
+
+      <div class="panel">
+        <input id="apiKey" value="8cd5e84fa4564322b907aaddac29b059" placeholder="API Key" />
+        <div class="note" style="margin-top:8px">Endpoint dipakai: FX_INTRADAY 15min. Jika API membatasi akses, chart tetap menampilkan data contoh agar tampilan tidak kosong.</div>
+      </div>
+
+      <div class="panel">
+        <div style="font-weight:700;margin-bottom:10px">Ringkasan Analisis</div>
+        <div class="list" id="analysisList"></div>
+      </div>
+
+      <div class="panel note">
+        Web ini cocok untuk deploy langsung ke GitHub Pages. Data real-time dari browser bisa terkena CORS/batasan API, jadi kode sudah menyiapkan fallback data lokal bila respons gagal.
+      </div>
+    </div>
+  </div>
+
+<script>
+const chartEl = document.getElementById('chart');
+const pairNameEl = document.getElementById('pairName');
+const lastPriceEl = document.getElementById('lastPrice');
+const signalTextEl = document.getElementById('signalText');
+const signalMainEl = document.getElementById('signalMain');
+const signalDotEl = document.getElementById('signalDot');
+const signalNoteEl = document.getElementById('signalNote');
+const analysisListEl = document.getElementById('analysisList');
+const apiKeyEl = document.getElementById('apiKey');
+let chart, candleSeries, maFast, maMirror, maSlow, boxSeries;
+let activePair = 'GBP/USD';
+const pairMap = { 'GBP/USD': ['GBP','USD'], 'EUR/USD': ['EUR','USD'] };
+
+function ema(values, period){
+  const out=[]; const k=2/(period+1); let prev=null;
+  for(let i=0;i<values.length;i++){
+    const v=values[i];
+    if(prev===null){ prev = v; out.push(v); }
+    else { prev = v*k + prev*(1-k); out.push(prev); }
+  }
+  return out;
+}
+function toChartTime(ts){ return Math.floor(new Date(ts).getTime()/1000); }
+function fmt(n){ return Number(n).toFixed(5); }
+function signalFrom(fast, slow){
+  if(fast>slow) return {text:'BUY', color:'var(--green)', note:'Fast MA di atas Slow MA, histogram biru dominan.'};
+  if(fast<slow) return {text:'SELL', color:'var(--red)', note:'Fast MA di bawah Slow MA, histogram oranye dominan.'};
+  return {text:'NEUTRAL', color:'#f2c94c', note:'Fast MA dan Slow MA mendekati sama.'};
+}
+
+function makeFallback(pair){
+  const base = pair==='GBP/USD' ? 1.2720 : 1.0850;
+  const arr=[]; let p=base; const now=Date.now();
+  for(let i=120;i>=0;i--){
+    const t=now - i*15*60*1000;
+    const drift=Math.sin(i/8)*0.0012 + Math.cos(i/13)*0.0007;
+    const open=p;
+    const close=p + drift + (Math.random()-0.5)*0.0008;
+    const high=Math.max(open,close)+(Math.random()*0.0006);
+    const low=Math.min(open,close)-(Math.random()*0.0006);
+    arr.push({time:toChartTime(t), open:+open.toFixed(5), high:+high.toFixed(5), low:+low.toFixed(5), close:+close.toFixed(5)});
+    p=close;
+  }
+  return arr;
+}
+
+async function fetchFX(pair){
+  const [from,to]=pairMap[pair];
+  const key = apiKeyEl.value.trim();
+  const url = `https://www.alphavantage.co/query?function=FX_INTRADAY&from_symbol=${from}&to_symbol=${to}&interval=15min&outputsize=compact&apikey=${encodeURIComponent(key)}`;
+  const r = await fetch(url);
+  const j = await r.json();
+  const ts = j['Time Series FX (15min)'];
+  if(!ts) throw new Error(j['Note'] || j['Error Message'] || 'No time series');
+  const data = Object.entries(ts).map(([time,v]) => ({
+    time: toChartTime(time),
+    open:+v['1. open'],
+    high:+v['2. high'],
+    low:+v['3. low'],
+    close:+v['4. close']
+  })).sort((a,b)=>a.time-b.time);
+  return data;
+}
+
+function drawBoxes(data){
+  const boxes=[];
+  for(let i=1;i<data.length;i++){
+    const cur=data[i];
+    const up = cur.close >= cur.open;
+    const top = up ? cur.low : cur.high;
+    const bottom = up ? Math.min(cur.low, data[i-1].low) : Math.max(cur.high, data[i-1].high);
+    boxes.push({time:cur.time, value: top, color: up ? 'rgba(255,77,166,0.25)' : 'rgba(255,77,166,0.18)'});
+  }
+  return boxes;
+}
+
+function renderAnalysis(data){
+  const closes = data.map(d=>d.close);
+  const fast = ema(closes,10);
+  const slow = ema(closes,30);
+  const mirror = closes.map((_,i)=> (2*slow[i]) - fast[i]);
+  const idx=data.length-1;
+  const f=fast[idx], s=slow[idx], m=mirror[idx];
+  const sig=signalFrom(f,s);
+  signalTextEl.textContent = sig.text;
+  signalMainEl.textContent = sig.text + ' · ' + activePair;
+  signalMainEl.style.color = sig.color;
+  signalDotEl.style.background = sig.color;
+  signalNoteEl.textContent = sig.note;
+  lastPriceEl.textContent = fmt(data[idx].close);
+  pairNameEl.textContent = activePair;
+  const last = data.slice(-5).map((d,i)=> `<div class='item'>Bar ${i+1}: O ${fmt(d.open)} · H ${fmt(d.high)} · L ${fmt(d.low)} · C ${fmt(d.close)}</div>`).join('');
+  analysisListEl.innerHTML = [
+    `<div class='item'>Fast EMA(10): ${fmt(f)}</div>`,
+    `<div class='item'>Slow EMA(30): ${fmt(s)}</div>`,
+    `<div class='item'>Mirror MA: ${fmt(m)}</div>`,
+    `<div class='item'>Mode: ${f>s ? 'Bullish ribbon' : f<s ? 'Bearish ribbon' : 'Flat'}</div>`,
+    last
+  ].join('');
+  maFast.setData(data.map((d,i)=>({time:d.time,value:fast[i]})));
+  maSlow.setData(data.map((d,i)=>({time:d.time,value:slow[i]})));
+  maMirror.setData(data.map((d,i)=>({time:d.time,value:mirror[i]})));
+  boxSeries.setData(drawBoxes(data));
+}
+
+async function loadPair(pair){
+  activePair = pair;
+  document.querySelectorAll('.btn').forEach(b=>b.classList.toggle('active', b.dataset.pair===pair));
+  signalMainEl.textContent = 'Memuat data...';
+  signalTextEl.textContent='-';
+  signalDotEl.style.background = '#8ea4c2';
+  try {
+    const data = await fetchFX(pair);
+    candleSeries.setData(data);
+    renderAnalysis(data);
+    chart.timeScale().fitContent();
+  } catch(e){
+    const data = makeFallback(pair);
+    candleSeries.setData(data);
+    renderAnalysis(data);
+    signalNoteEl.textContent = 'Fallback data dipakai karena API tidak dapat diakses langsung dari browser atau ada limit rate.';
+    chart.timeScale().fitContent();
+  }
+}
+
+function init(){
+  chart = LightweightCharts.createChart(chartEl, {
+    layout:{background:{color:'#07111f'}, textColor:'#d8e6f7'},
+    grid:{vertLines:{color:'rgba(255,255,255,0.04)'}, horzLines:{color:'rgba(255,255,255,0.04)'}},
+    crosshair:{mode:1},
+    rightPriceScale:{borderColor:'#22344d'},
+    timeScale:{borderColor:'#22344d', timeVisible:true, secondsVisible:false},
+    watermark:{visible:true, text:'Forex Signal Analyzer', color:'rgba(255,255,255,0.05)', fontSize:18}
+  });
+  candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
+    upColor:'#25d366', downColor:'#ff5d5d',
+    borderUpColor:'#25d366', borderDownColor:'#ff5d5d',
+    wickUpColor:'#25d366', wickDownColor:'#ff5d5d'
+  });
+  maFast = chart.addSeries(LightweightCharts.LineSeries, {color:'#3ea6ff', lineWidth:2});
+  maMirror = chart.addSeries(LightweightCharts.LineSeries, {color:'#ff9f43', lineWidth:2});
+  maSlow = chart.addSeries(LightweightCharts.LineSeries, {color:'#8b93a7', lineWidth:1});
+  boxSeries = chart.addSeries(LightweightCharts.AreaSeries, {
+    lineColor:'rgba(255,77,166,0)', topColor:'rgba(255,77,166,0.22)',
+    bottomColor:'rgba(255,77,166,0.02)', lineWidth:0
+  });
+  window.addEventListener('resize', ()=> chart.resize(chartEl.clientWidth, chartEl.clientHeight));
+  document.querySelectorAll('.btn').forEach(btn => btn.addEventListener('click', ()=> loadPair(btn.dataset.pair)));
+  loadPair(activePair);
+}
+init();
+</script>
+</body>
+</html>
