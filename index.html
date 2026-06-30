@@ -1,383 +1,515 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RIBBON // FX Terminal</title>
-<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
-<style>
-  :root{
-    --bg:#0a0e14;
-    --panel:#11161f;
-    --line:#1c2430;
-    --ink:#d8dee9;
-    --dim:#5b6577;
-    --blue:#3aa0ff;
-    --orange:#ff8a3a;
-    --pink:#ff3a8c;
-    --green:#3affa0;
-    --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
-    --disp:'Sora','Inter',sans-serif;
-  }
-  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
-  *{box-sizing:border-box;}
-  body{
-    margin:0; background:var(--bg); color:var(--ink);
-    font-family:var(--mono);
-    min-height:100vh;
-    display:flex; justify-content:center;
-  }
-  .col{
-    width:100%; max-width:720px;
-    border-left:1px solid var(--line); border-right:1px solid var(--line);
-    min-height:100vh;
-    background:
-      linear-gradient(180deg, rgba(58,160,255,.05), transparent 200px);
-  }
-  header{
-    padding:22px 18px 14px;
-    border-bottom:1px solid var(--line);
-  }
-  header .tag{
-    font-size:11px; letter-spacing:.2em; color:var(--dim); text-transform:uppercase;
-  }
-  header h1{
-    font-family:var(--disp); font-weight:800; font-size:26px; margin:4px 0 0;
-    letter-spacing:-.01em;
-  }
-  header h1 span{color:var(--blue);}
-
-  .bar{
-    display:flex; flex-wrap:wrap; gap:8px;
-    padding:14px 18px; border-bottom:1px solid var(--line);
-    background:var(--panel);
-  }
-  .grp{display:flex; gap:6px; flex-wrap:wrap;}
-  button.chip{
-    background:transparent; border:1px solid var(--line); color:var(--dim);
-    font-family:var(--mono); font-size:12px; font-weight:500;
-    padding:7px 12px; border-radius:3px; cursor:pointer;
-    transition:.15s;
-  }
-  button.chip:hover{border-color:var(--blue); color:var(--ink);}
-  button.chip.active{background:var(--blue); border-color:var(--blue); color:#04101e; font-weight:700;}
-  button.refresh{
-    margin-left:auto; background:transparent; border:1px solid var(--green);
-    color:var(--green); font-family:var(--mono); font-size:12px; font-weight:700;
-    padding:7px 14px; border-radius:3px; cursor:pointer; letter-spacing:.05em;
-  }
-  button.refresh:hover{background:var(--green); color:#04101e;}
-  button.refresh.spin::before{content:'↻ ';}
-
-  .keyrow{
-    padding:10px 18px; border-bottom:1px solid var(--line);
-    font-size:11px; color:var(--dim); display:flex; gap:10px; align-items:center;
-  }
-  .keyrow input{
-    flex:1; background:var(--bg); border:1px solid var(--line); color:var(--ink);
-    font-family:var(--mono); font-size:12px; padding:6px 8px; border-radius:3px;
-  }
-  .keyrow a{color:var(--blue); text-decoration:none;}
-
-  .price{
-    padding:14px 18px; border-bottom:1px solid var(--line);
-    display:flex; align-items:baseline; gap:12px;
-  }
-  .price .val{font-family:var(--disp); font-size:30px; font-weight:700;}
-  .price .chg{font-size:13px; font-weight:600; padding:2px 8px; border-radius:3px;}
-  .chg.up{color:var(--green); background:rgba(58,255,160,.1);}
-  .chg.down{color:var(--pink); background:rgba(255,58,140,.1);}
-
-  .panel-label{
-    font-size:10px; color:var(--dim); letter-spacing:.15em; text-transform:uppercase;
-    padding:10px 18px 4px;
-  }
-  #mainChart{width:100%; height:380px;}
-  #subChart{width:100%; height:150px; border-top:1px solid var(--line);}
-
-  .legend{
-    display:flex; gap:14px; flex-wrap:wrap; padding:10px 18px 16px; font-size:11px;
-  }
-  .legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px;}
-
-  .status{
-    padding:12px 18px 24px; font-size:11px; color:var(--dim);
-    border-top:1px solid var(--line);
-    display:flex; justify-content:space-between;
-  }
-  .status .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--dim); margin-right:6px;}
-  .status .dot.live{background:var(--green); box-shadow:0 0 6px var(--green);}
-
-  footer{padding:16px 18px 28px; font-size:10px; color:var(--dim); line-height:1.6;}
-  footer code{color:var(--blue);}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Lite FX Mobile Terminal</title>
+    <!-- Tailwind CSS untuk Styling Responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- TradingView Lightweight Charts CDN -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
 </head>
-<body>
-<div class="col">
+<body class="bg-gray-950 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
 
-  <header>
-    <div class="tag">Symmetrical Ribbon · MQL4 → Web</div>
-    <h1>FX <span>TERMINAL</span></h1>
-  </header>
+    <!-- Header Terminal Minimalis -->
+    <header class="bg-gray-900 border-b border-gray-800 p-3 sticky top-0 z-50 shadow-md">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="w-3 h-3 rounded-full bg-green-500 animate-pulse" id="status-dot"></span>
+                <h1 class="text-base font-bold tracking-wider text-gray-200">FX TERMINAL LITE</h1>
+            </div>
+            <span id="api-badge" class="text-xs bg-gray-800 px-2.5 py-1 rounded-full text-gray-400 font-medium">Connecting...</span>
+        </div>
+    </header>
 
-  <div class="bar">
-    <div class="grp" id="symGrp">
-      <button class="chip" data-sym="EUR/USD">EURUSD</button>
-      <button class="chip" data-sym="GBP/USD">GBPUSD</button>
-      <button class="chip" data-sym="XAU/USD">XAUUSD</button>
-    </div>
-    <div class="grp" id="tfGrp">
-      <button class="chip" data-tf="30min">M30</button>
-      <button class="chip" data-tf="1h">H1</button>
-      <button class="chip" data-tf="4h">H4</button>
-      <button class="chip" data-tf="1day">D1</button>
-    </div>
-    <button class="refresh" id="refreshBtn">REFRESH</button>
-  </div>
+    <!-- Kontainer Utama (1 Kolom Sederhana untuk HP) -->
+    <main class="flex-grow max-w-md w-full mx-auto p-2 space-y-3">
+        
+        <!-- Pemilih Pair (GBP/USD, EUR/USD, XAU/USD) -->
+        <div class="grid grid-cols-3 gap-2 bg-gray-900/50 p-1.5 rounded-xl border border-gray-800/80">
+            <button onclick="switchPair('GBP/USD')" id="btn-GBP/USD" class="pair-btn py-2 text-xs font-semibold rounded-lg transition-all duration-200 bg-blue-600 text-white shadow-sm">
+                GBP/USD
+            </button>
+            <button onclick="switchPair('EUR/USD')" id="btn-EUR/USD" class="pair-btn py-2 text-xs font-semibold rounded-lg transition-all duration-200 bg-gray-800 text-gray-400 hover:bg-gray-700/50">
+                EUR/USD
+            </button>
+            <button onclick="switchPair('XAU/USD')" id="btn-XAU/USD" class="pair-btn py-2 text-xs font-semibold rounded-lg transition-all duration-200 bg-gray-800 text-gray-400 hover:bg-gray-700/50">
+                XAU/USD
+            </button>
+        </div>
 
-  <div class="keyrow">
-    API KEY:
-    <input id="apiKey" placeholder="Twelve Data API key (free at twelvedata.com)" value="8cd5e84fa4564322b907aaddac29b059" />
-    <a href="https://twelvedata.com/pricing" target="_blank">get key ↗</a>
-  </div>
+        <!-- Pemilih Timeframe (M30, H1, H4, D1) -->
+        <div class="grid grid-cols-4 gap-1.5 bg-gray-900/30 p-1 rounded-lg border border-gray-800/50">
+            <button onclick="switchTimeframe('30min')" id="tf-30min" class="tf-btn py-1 text-[11px] font-medium rounded transition-all duration-200 bg-gray-800 text-gray-400 hover:bg-gray-700/50">
+                M30
+            </button>
+            <button onclick="switchTimeframe('1h')" id="tf-1h" class="tf-btn py-1 text-[11px] font-medium rounded transition-all duration-200 bg-blue-600 text-white shadow-sm">
+                H1
+            </button>
+            <button onclick="switchTimeframe('4h')" id="tf-4h" class="tf-btn py-1 text-[11px] font-medium rounded transition-all duration-200 bg-gray-800 text-gray-400 hover:bg-gray-700/50">
+                H4
+            </button>
+            <button onclick="switchTimeframe('1day')" id="tf-1day" class="tf-btn py-1 text-[11px] font-medium rounded transition-all duration-200 bg-gray-800 text-gray-400 hover:bg-gray-700/50">
+                D1
+            </button>
+        </div>
 
-  <div class="price">
-    <div class="val" id="priceVal">—</div>
-    <div class="chg" id="priceChg">—</div>
-  </div>
+        <!-- Tampilan Harga Mengambang -->
+        <div class="bg-gray-900 border border-gray-800 p-3 rounded-xl flex justify-between items-center shadow-sm">
+            <div>
+                <div class="text-xs text-gray-500 font-medium"><span id="current-pair-label">GBP/USD</span> <span id="current-tf-label" class="ml-1 text-[10px] bg-gray-800 px-1.5 py-0.5 rounded text-gray-400 font-mono">H1</span></div>
+                <div class="text-xl font-bold font-mono tracking-tight text-blue-400" id="current-price">0.00000</div>
+            </div>
+            <div class="text-right text-xs space-y-0.5">
+                <div><span class="text-gray-500">H:</span> <span id="bar-high" class="font-mono text-gray-300">0.0000</span></div>
+                <div><span class="text-gray-500">L:</span> <span id="bar-low" class="font-mono text-gray-300">0.0000</span></div>
+            </div>
+        </div>
 
-  <div class="panel-label">Main · Symmetrical MA Ribbon + Vertical Box Histogram (Gaichi)</div>
-  <div id="mainChart"></div>
-  <div class="legend">
-    <span><i style="background:var(--blue)"></i>Fast MA</span>
-    <span><i style="background:var(--orange)"></i>Mirror MA</span>
-    <span><i style="background:#7e8aa3"></i>Slow MA (base)</span>
-    <span><i style="background:rgba(58,160,255,.6)"></i>Bullish zone (gaichi)</span>
-    <span><i style="background:rgba(255,138,58,.6)"></i>Bearish zone (gaichi)</span>
-  </div>
+        <!-- Area Grafik Utama & Subwindow -->
+        <div class="space-y-2">
+            <!-- Grafik Candlestick Utama + Gaichin Box + Symmetrical Ribbon -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-md">
+                <div class="p-2 border-b border-gray-800/60 bg-gray-900/50 flex justify-between items-center">
+                    <span class="text-xs font-semibold text-gray-400">Utama (Candlestick & Ribbon)</span>
+                    <span id="chart-tf-badge" class="text-[10px] bg-indigo-950/80 text-indigo-400 border border-indigo-900/50 px-1.5 py-0.5 rounded uppercase">H1 Timeframe</span>
+                </div>
+                <div id="main-chart" class="w-full h-[320px]"></div>
+            </div>
 
-  <div class="panel-label">Sub · EMA Oscillator (2 / 21) Jenuh Beli/Jual</div>
-  <div id="subChart"></div>
-  <div class="legend">
-    <span><i style="background:var(--blue)"></i>EMA1 (2)</span>
-    <span><i style="background:#ff4d4d"></i>EMA2 (21)</span>
-    <span><i style="background:var(--green)"></i>▲ Oversold &lt;15</span>
-    <span><i style="background:#ff4d4d"></i>▼ Overbought &gt;85</span>
-  </div>
+            <!-- Grafik Subwindow 2-21 (EMA Jenuh) -->
+            <div class="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden shadow-md">
+                <div class="p-2 border-b border-gray-800/60 bg-gray-900/50 flex justify-between items-center">
+                    <span class="text-xs font-semibold text-gray-400">EMA Oscillator (Subwindow 2-21)</span>
+                    <span class="text-[10px] text-gray-500">Level: 15 / 50 / 85</span>
+                </div>
+                <div id="sub-chart" class="w-full h-[180px]"></div>
+            </div>
+        </div>
 
-  <div class="status">
-    <span><span class="dot" id="statusDot"></span><span id="statusText">idle</span></span>
-    <span id="lastUpdate">—</span>
-  </div>
+        <!-- Keterangan Indikator Sederhana -->
+        <div class="bg-gray-900/40 border border-gray-800/80 rounded-xl p-3 text-[11px] text-gray-400 space-y-1.5 leading-relaxed">
+            <p class="font-semibold text-gray-300 text-xs">Informasi Indikator:</p>
+            <p>🔵 <b class="text-gray-300">Gaichin Histogram:</b> Area bayangan <i>Midnight Blue</i> mengisi area di bawah batas harga Low candlestick.</p>
+            <p>🟠 <b class="text-gray-300">Symmetrical Ribbon:</b> Garis DodgerBlue (Fast 10), Orange (Mirror), dan Abu-abu Putus-putus (Base 30).</p>
+            <p>📈 <b class="text-gray-300">EMA Jenuh:</b> Garis Biru (EMA1) &amp; Merah (EMA2). Panah Hijau muncul di level jenuh jual (&le;15), Panah Merah di jenuh beli (&ge;85).</p>
+        </div>
 
-  <footer>
-    Logic ported from <code>Symmetrical_MA_Ribbon.mq4</code>, <code>EMA_Subwindow_2_21.mq4</code> and
-    <code>Vertical Box Histogram.mq4</code>. Mirror MA = 2×SlowMA − FastMA. Oscillator = EMA-smoothed
-    Stochastic %K (period 14) of EMA1/EMA2. Data via Twelve Data REST API — bring your own free key,
-    stored only in this tab's memory, never saved. Single-file, deploy as-is on GitHub Pages.
-  </footer>
+    </main>
 
-</div>
+    <!-- Footer Kaki Halaman -->
+    <footer class="bg-gray-950 border-t border-gray-900 p-3 text-center text-[10px] text-gray-600">
+        <p>© 2026 Mobile FX Trading Terminal. All rights reserved.</p>
+    </footer>
 
-<script>
-const FAST_MA = 10, SLOW_MA = 30;
-const EMA1_P = 2, EMA2_P = 21, STOCH_P = 14, LVL_UP = 85, LVL_LO = 15;
+    <!-- Logika Terminal -->
+    <script>
+        const API_KEY = '8cd5e84fa4564322b907aaddac29b059';
+        let currentPair = 'GBP/USD';
+        let currentTimeframe = '1h'; // Default H1
+        let mainChart, subChart;
+        let candleSeries, gaichinSeries, fastMASeries, mirrorMASeries, baseMASeries;
+        let ema1Series, ema2Series;
+        let isUsingFallback = false;
 
-let state = { symbol: 'EUR/USD', tf: '1h', key: '8cd5e84fa4564322b907aaddac29b059' };
-let liveTimer = null;
+        // Peta label tampilan untuk masing-masing kode timeframe API
+        const tfLabels = {
+            '30min': 'M30',
+            '1h': 'H1',
+            '4h': 'H4',
+            '1day': 'D1'
+        };
 
-const symGrp = document.getElementById('symGrp');
-const tfGrp = document.getElementById('tfGrp');
-symGrp.querySelector('[data-sym="EUR/USD"]').classList.add('active');
-tfGrp.querySelector('[data-tf="1h"]').classList.add('active');
+        // Inisialisasi Grafik saat DOM siap
+        document.addEventListener("DOMContentLoaded", () => {
+            initCharts();
+            loadPairData(currentPair, currentTimeframe);
+        });
 
-symGrp.addEventListener('click', e=>{
-  const b = e.target.closest('button'); if(!b) return;
-  [...symGrp.children].forEach(c=>c.classList.remove('active'));
-  b.classList.add('active'); state.symbol = b.dataset.sym; load();
-});
-tfGrp.addEventListener('click', e=>{
-  const b = e.target.closest('button'); if(!b) return;
-  [...tfGrp.children].forEach(c=>c.classList.remove('active'));
-  b.classList.add('active'); state.tf = b.dataset.tf; load();
-});
-document.getElementById('apiKey').addEventListener('change', e=>{ state.key = e.target.value.trim(); });
-document.getElementById('refreshBtn').addEventListener('click', load);
+        // Setup Grafik TradingView
+        function initCharts() {
+            const chartOptions = {
+                layout: {
+                    background: { color: '#111827' },
+                    textColor: '#9ca3af',
+                    fontSize: 10,
+                },
+                grid: {
+                    vertLines: { color: '#1f2937' },
+                    horzLines: { color: '#1f2937' },
+                },
+                crosshair: {
+                    mode: LightweightCharts.CrosshairMode.Normal,
+                },
+                timeScale: {
+                    borderColor: '#1f2937',
+                    timeVisible: true,
+                    secondsVisible: false,
+                }
+            };
 
-// ---- charts ----
-const chartOpts = {
-  layout:{ background:{color:'transparent'}, textColor:'#5b6577', fontFamily:'JetBrains Mono' },
-  grid:{ vertLines:{color:'#1c2430'}, horzLines:{color:'#1c2430'} },
-  rightPriceScale:{ borderColor:'#1c2430' },
-  timeScale:{ borderColor:'#1c2430' },
-  crosshair:{ mode:0 },
-};
-const mainChart = LightweightCharts.createChart(document.getElementById('mainChart'), {...chartOpts, height:380});
-const candleSeries = mainChart.addCandlestickSeries({ upColor:'#3affa0', downColor:'#ff3a8c', borderVisible:false, wickUpColor:'#3affa0', wickDownColor:'#ff3a8c' });
-const fastLine = mainChart.addLineSeries({ color:'#3aa0ff', lineWidth:2 });
-const mirrorLine = mainChart.addLineSeries({ color:'#ff8a3a', lineWidth:2 });
-const slowLine = mainChart.addLineSeries({ color:'#7e8aa3', lineWidth:1, lineStyle:2 });
-const blueHist = mainChart.addHistogramSeries({ color:'rgba(58,160,255,.45)', priceScaleId:'gaichi', base:0 });
-mainChart.priceScale('gaichi').applyOptions({ scaleMargins:{ top:0.82, bottom:0 }, visible:false });
+            // 1. Grafik Utama
+            const mainContainer = document.getElementById('main-chart');
+            mainChart = LightweightCharts.createChart(mainContainer, {
+                ...chartOptions,
+                width: mainContainer.clientWidth,
+                height: 320,
+            });
 
-const subChart = LightweightCharts.createChart(document.getElementById('subChart'), {...chartOpts, height:150});
-subChart.applyOptions({ rightPriceScale:{ borderColor:'#1c2430' } });
-const ema1Line = subChart.addLineSeries({ color:'#3aa0ff', lineWidth:2 });
-const ema2Line = subChart.addLineSeries({ color:'#ff4d4d', lineWidth:2 });
-const arrowUp = subChart.addLineSeries({ color:'#3affa0', lineWidth:0, pointMarkersVisible:true, pointMarkersRadius:4, lastValueVisible:false, priceLineVisible:false });
-const arrowDown = subChart.addLineSeries({ color:'#ff4d4d', lineWidth:0, pointMarkersVisible:true, pointMarkersRadius:4, lastValueVisible:false, priceLineVisible:false });
-function fit(){
-  const mw = document.getElementById('mainChart').clientWidth || window.innerWidth;
-  const sw = document.getElementById('subChart').clientWidth || window.innerWidth;
-  mainChart.applyOptions({width: mw});
-  subChart.applyOptions({width: sw});
-}
-window.addEventListener('resize', fit);
-const ro = new ResizeObserver(fit);
-ro.observe(document.getElementById('mainChart'));
-fit();
-setTimeout(fit, 50);
-setTimeout(fit, 300);
-mainChart.timeScale().subscribeVisibleLogicalRangeChange(r=>{ subChart.timeScale().setVisibleLogicalRange(r); });
-subChart.timeScale().subscribeVisibleLogicalRangeChange(r=>{ mainChart.timeScale().setVisibleLogicalRange(r); });
+            // Series Candlestick
+            candleSeries = mainChart.addCandlestickSeries({
+                upColor: '#10b981',
+                downColor: '#ef4444',
+                borderUpColor: '#10b981',
+                borderDownColor: '#ef4444',
+                wickUpColor: '#10b981',
+                wickDownColor: '#ef4444',
+            });
 
-// ---- indicator math (ported from the MQL4 sources) ----
-function ema(values, period){
-  const a = 2/(period+1); const out = new Array(values.length);
-  out[0] = values[0];
-  for(let i=1;i<values.length;i++) out[i] = out[i-1] + a*(values[i]-out[i-1]);
-  return out;
-}
-function buildRibbon(candles){
-  const closes = candles.map(c=>c.close);
-  const fast = ema(closes, FAST_MA);
-  const slow = ema(closes, SLOW_MA);
-  const mirror = fast.map((f,i)=> 2*slow[i] - f);
-  const blue = candles.map((c,i)=>{
-    if(fast[i] > slow[i]) return { time:c.time, value: fast[i]-slow[i], color:'rgba(58,160,255,.45)' };
-    if(fast[i] < slow[i]) return { time:c.time, value: mirror[i]-slow[i], color:'rgba(255,138,58,.45)' };
-    return { time:c.time, value:0 };
-  });
-  return {
-    fast: candles.map((c,i)=>({time:c.time, value:fast[i]})),
-    mirror: candles.map((c,i)=>({time:c.time, value:mirror[i]})),
-    slow: candles.map((c,i)=>({time:c.time, value:slow[i]})),
-    blue
-  };
-}
-function buildOscillator(candles){
-  const n = candles.length;
-  const stoch = candles.map((c,i)=>{
-    const lo = Math.max(0, i-STOCH_P+1);
-    const seg = candles.slice(lo, i+1);
-    const hh = Math.max(...seg.map(x=>x.high));
-    const ll = Math.min(...seg.map(x=>x.low));
-    const range = hh-ll;
-    return range>0 ? (c.close-ll)/range*100 : 50;
-  });
-  const e1 = ema(stoch, EMA1_P);
-  const e2 = ema(stoch, EMA2_P);
-  const up=[], down=[];
-  candles.forEach((c,i)=>{
-    if(e1[i] <= LVL_LO) up.push({time:c.time, value:e1[i]-4});
-    if(e1[i] >= LVL_UP) down.push({time:c.time, value:e1[i]+4});
-  });
-  return {
-    e1: candles.map((c,i)=>({time:c.time, value:e1[i]})),
-    e2: candles.map((c,i)=>({time:c.time, value:e2[i]})),
-    up, down
-  };
-}
+            // Indikator 1: Gaichin Area (MidnightBlue di bawah Low)
+            gaichinSeries = mainChart.addAreaSeries({
+                topColor: 'rgba(25, 25, 112, 0.45)', // MidnightBlue dengan Opasitas
+                bottomColor: 'rgba(25, 25, 112, 0.05)',
+                lineColor: 'transparent',
+                lineWidth: 0,
+                priceLineVisible: false,
+            });
 
-// ---- data fetch ----
-function setStatus(text, live){
-  document.getElementById('statusText').textContent = text;
-  document.getElementById('statusDot').classList.toggle('live', !!live);
-}
-async function fetchCandles(){
-  if(!state.key){
-    setStatus('masukkan API key Twelve Data', false);
-    return null;
-  }
-  const url = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(state.symbol)}&interval=${state.tf}&outputsize=300&apikey=${state.key}`;
-  const res = await fetch(url);
-  const json = await res.json();
-  if(json.status === 'error' || !json.values){
-    setStatus('error: ' + (json.message || 'gagal mengambil data'), false);
-    return null;
-  }
-  return json.values.slice().reverse().map(v=>({
-    time: Math.floor(new Date(v.datetime.replace(' ','T')+'Z').getTime()/1000),
-    open: +v.open, high: +v.high, low: +v.low, close: +v.close
-  }));
-}
+            // Indikator 2: Symmetrical MA Ribbon
+            fastMASeries = mainChart.addLineSeries({
+                color: '#1e90ff', // DodgerBlue
+                lineWidth: 2,
+                priceLineVisible: false,
+            });
+            mirrorMASeries = mainChart.addLineSeries({
+                color: '#ff8c00', // DarkOrange
+                lineWidth: 2,
+                priceLineVisible: false,
+            });
+            baseMASeries = mainChart.addLineSeries({
+                color: '#808080', // Gray
+                lineWidth: 1.5,
+                lineStyle: LightweightCharts.LineStyle.Dotted,
+                priceLineVisible: false,
+            });
 
-async function fetchLivePrice(){
-  if(!state.key) return;
-  try{
-    const url = `https://api.twelvedata.com/price?symbol=${encodeURIComponent(state.symbol)}&apikey=${state.key}`;
-    const res = await fetch(url);
-    const json = await res.json();
-    if(json.price){
-      const last = +json.price;
-      document.getElementById('priceVal').textContent = last.toFixed(state.symbol==='XAU/USD'?2:5);
-      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
-      setStatus('live', true);
-    }
-  }catch(err){ /* silent fail, keep last good price */ }
-}
-function startLivePolling(){
-  if(liveTimer) clearInterval(liveTimer);
-  fetchLivePrice();
-  liveTimer = setInterval(fetchLivePrice, 5000);
-}
+            // 2. Grafik Subwindow (EMA 2-21)
+            const subContainer = document.getElementById('sub-chart');
+            subChart = LightweightCharts.createChart(subContainer, {
+                ...chartOptions,
+                width: subContainer.clientWidth,
+                height: 180,
+                rightPriceScale: {
+                    scaleMargins: { top: 0.1, bottom: 0.1 },
+                    mode: 0, // Normal
+                    autoScale: false, // Kunci skala vertikal sesuai batas indikator
+                }
+            });
 
-async function load(){
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('spin'); btn.textContent = 'LOADING…';
-  setStatus('mengambil data…', false);
-  try{
-    const candles = await fetchCandles();
-    if(!candles){ btn.classList.remove('spin'); btn.textContent='REFRESH'; return; }
+            // Indikator 3: EMA Subwindow
+            ema1Series = subChart.addLineSeries({
+                color: '#2563eb', // Blue
+                lineWidth: 2,
+            });
+            ema2Series = subChart.addLineSeries({
+                color: '#dc2626', // Red
+                lineWidth: 2,
+            });
 
-    candleSeries.setData(candles);
-    const r = buildRibbon(candles);
-    fastLine.setData(r.fast);
-    mirrorLine.setData(r.mirror);
-    slowLine.setData(r.slow);
-    blueHist.setData(r.blue);
+            // Buat level statis 85, 50, 15 pada subwindow
+            const createLevelLine = (price, label) => {
+                ema1Series.createPriceLine({
+                    price: price,
+                    color: '#4b5563',
+                    lineWidth: 1,
+                    lineStyle: LightweightCharts.LineStyle.Dotted,
+                    axisLabelVisible: true,
+                    title: label,
+                });
+            };
+            createLevelLine(85, 'OB 85');
+            createLevelLine(50, 'MID 50');
+            createLevelLine(15, 'OS 15');
 
-    const o = buildOscillator(candles);
-    ema1Line.setData(o.e1);
-    ema2Line.setData(o.e2);
-    arrowUp.setData(o.up);
-    arrowDown.setData(o.down);
+            // Sinkronisasi Interaksi (Scroll/Zoom) Grafik Utama & Subwindow
+            let isScaling = false;
+            mainChart.timeScale().subscribeVisibleTimeRangeChange(range => {
+                if (isScaling) return;
+                isScaling = true;
+                subChart.timeScale().setVisibleRange(range);
+                isScaling = false;
+            });
+            subChart.timeScale().subscribeVisibleTimeRangeChange(range => {
+                if (isScaling) return;
+                isScaling = true;
+                mainChart.timeScale().setVisibleRange(range);
+                isScaling = false;
+            });
 
-    fit();
-    mainChart.timeScale().fitContent();
-    subChart.timeScale().fitContent();
+            // Responsif Terhadap Perubahan Ukuran Layar HP (Rotasi/Resize)
+            const resizeObserver = new ResizeObserver(entries => {
+                for (let entry of entries) {
+                    if (entry.target === mainContainer) {
+                        mainChart.resize(entry.contentRect.width, 320);
+                    } else if (entry.target === subContainer) {
+                        subChart.resize(entry.contentRect.width, 180);
+                    }
+                }
+            });
+            resizeObserver.observe(mainContainer);
+            resizeObserver.observe(subContainer);
+        }
 
-    const last = candles[candles.length-1];
-    const prev = candles[candles.length-2] || last;
-    const chg = last.close - prev.close;
-    const pct = (chg/prev.close*100).toFixed(3);
-    document.getElementById('priceVal').textContent = last.close.toFixed(state.symbol==='XAU/USD'?2:5);
-    const chgEl = document.getElementById('priceChg');
-    chgEl.textContent = (chg>=0?'+':'') + chg.toFixed(5) + ' (' + pct + '%)';
-    chgEl.className = 'chg ' + (chg>=0?'up':'down');
+        // Fungsi Mengambil Data & Switch Pair/Timeframe
+        async function loadPairData(pair, tf) {
+            document.getElementById('current-pair-label').innerText = pair;
+            document.getElementById('current-tf-label').innerText = tfLabels[tf];
+            document.getElementById('chart-tf-badge').innerText = `${tfLabels[tf]} TIMEFRAME`;
 
-    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
-    setStatus('live', true);
-    startLivePolling();
-  }catch(err){
-    setStatus('error: ' + err.message, false);
-  }
-  btn.classList.remove('spin'); btn.textContent = 'REFRESH';
-}
+            const apiBadge = document.getElementById('api-badge');
+            apiBadge.innerText = 'Fetching...';
+            apiBadge.className = 'text-xs bg-yellow-950 text-yellow-400 px-2.5 py-1 rounded-full font-medium';
 
-setStatus('idle — memuat data awal…', false);
-state.key = document.getElementById('apiKey').value.trim();
-load();
-</script>
+            const url = `https://api.twelvedata.com/time_series?symbol=${pair}&interval=${tf}&apikey=${API_KEY}&outputsize=200`;
+
+            try {
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.status === 'ok' && result.values) {
+                    isUsingFallback = false;
+                    apiBadge.innerText = 'Live API';
+                    apiBadge.className = 'text-xs bg-green-950 text-green-400 px-2.5 py-1 rounded-full font-medium';
+                    document.getElementById('status-dot').className = 'w-3 h-3 rounded-full bg-green-500 animate-pulse';
+                    processAndPlot(result.values);
+                } else {
+                    throw new Error(result.message || 'Limit API terlampaui');
+                }
+            } catch (err) {
+                console.warn(`Gagal mengambil data API (${err.message}). Berpindah ke Mode Simulasi Terintegrasi.`);
+                isUsingFallback = true;
+                apiBadge.innerText = 'Demo Mode';
+                apiBadge.className = 'text-xs bg-blue-950 text-blue-400 px-2.5 py-1 rounded-full font-medium';
+                document.getElementById('status-dot').className = 'w-3 h-3 rounded-full bg-blue-500 animate-pulse';
+                
+                // Hasilkan data simulasi realistis sesuai dengan timeframe terpilih
+                const simulatedData = generateSimulatedData(pair, tf);
+                processAndPlot(simulatedData);
+            }
+        }
+
+        // Ganti Pilihan Pair dari Tombol Menu
+        function switchPair(pair) {
+            currentPair = pair;
+            document.querySelectorAll('.pair-btn').forEach(btn => {
+                btn.className = 'pair-btn py-2 text-xs font-semibold rounded-lg transition-all duration-200 bg-gray-800 text-gray-400 hover:bg-gray-700/50';
+            });
+            const activeBtn = document.getElementById(`btn-${pair}`);
+            if (activeBtn) {
+                activeBtn.className = 'pair-btn py-2 text-xs font-semibold rounded-lg transition-all duration-200 bg-blue-600 text-white shadow-sm';
+            }
+            loadPairData(currentPair, currentTimeframe);
+        }
+
+        // Ganti Pilihan Timeframe dari Tombol Menu
+        function switchTimeframe(tf) {
+            currentTimeframe = tf;
+            document.querySelectorAll('.tf-btn').forEach(btn => {
+                btn.className = 'tf-btn py-1 text-[11px] font-medium rounded transition-all duration-200 bg-gray-800 text-gray-400 hover:bg-gray-700/50';
+            });
+            const activeBtn = document.getElementById(`tf-${tf}`);
+            if (activeBtn) {
+                activeBtn.className = 'tf-btn py-1 text-[11px] font-medium rounded transition-all duration-200 bg-blue-600 text-white shadow-sm';
+            }
+            loadPairData(currentPair, currentTimeframe);
+        }
+
+        // Kalkulasi & Konstruksi Grafik Indikator
+        function processAndPlot(rawValues) {
+            const candles = rawValues.map(item => {
+                const parsedTime = Math.floor(new Date(item.datetime).getTime() / 1000);
+                return {
+                    time: parsedTime,
+                    open: parseFloat(item.open),
+                    high: parseFloat(item.high),
+                    low: parseFloat(item.low),
+                    close: parseFloat(item.close)
+                };
+            }).sort((a, b) => a.time - b.time);
+
+            // Update Panel Harga Terkini
+            const lastCandle = candles[candles.length - 1];
+            const decimalPlaces = currentPair.includes('JPY') || currentPair.includes('XAU') ? 2 : 5;
+            document.getElementById('current-price').innerText = lastCandle.close.toFixed(decimalPlaces);
+            document.getElementById('bar-high').innerText = lastCandle.high.toFixed(decimalPlaces);
+            document.getElementById('bar-low').innerText = lastCandle.low.toFixed(decimalPlaces);
+
+            // Plot Candlestick Utama
+            candleSeries.setData(candles);
+
+            // 1. Gaichin Area (Mengisi area dari harga Low ke bawah)
+            const gaichinData = candles.map(c => ({
+                time: c.time,
+                value: c.low
+            }));
+            gaichinSeries.setData(gaichinData);
+
+            // 2. Symmetrical MA Ribbon
+            const fastPeriod = 10;
+            const slowPeriod = 30;
+            const fastMA = calculateEMA(candles, fastPeriod);
+            const slowMA = calculateEMA(candles, slowPeriod);
+
+            const fastMAData = [];
+            const mirrorMAData = [];
+            const baseMAData = [];
+
+            for (let i = 0; i < candles.length; i++) {
+                if (fastMA[i] !== null && slowMA[i] !== null) {
+                    const f = fastMA[i];
+                    const s = slowMA[i];
+                    const m = (2.0 * s) - f;
+
+                    fastMAData.push({ time: candles[i].time, value: f });
+                    baseMAData.push({ time: candles[i].time, value: s });
+                    mirrorMAData.push({ time: candles[i].time, value: m });
+                }
+            }
+            fastMASeries.setData(fastMAData);
+            mirrorMASeries.setData(mirrorMAData);
+            baseMASeries.setData(baseMAData);
+
+            // 3. EMA Subwindow (EMA 2-21 dari Stochastic Ternormalisasi)
+            const stochRawList = calculateStochasticRaw(candles, 14);
+            const ema1_Period = 2;
+            const ema2_Period = 21;
+            const ema1 = calculateEMA(stochRawList, ema1_Period);
+            const ema2 = calculateEMA(stochRawList, ema2_Period);
+
+            const ema1Data = [];
+            const ema2Data = [];
+            const signals = [];
+
+            for (let i = 0; i < candles.length; i++) {
+                if (ema1[i] !== null && ema2[i] !== null) {
+                    const val1 = ema1[i];
+                    const val2 = ema2[i];
+                    const time = candles[i].time;
+
+                    ema1Data.push({ time, value: val1 });
+                    ema2Data.push({ time, value: val2 });
+
+                    // Identifikasi Sinyal Jenuh EMA 1 (Oversold <= 15 & Overbought >= 85)
+                    if (val1 <= 15) {
+                        signals.push({
+                            time: time,
+                            position: 'belowBar',
+                            color: '#10b981',
+                            shape: 'arrowUp',
+                            text: 'OS'
+                        });
+                    } else if (val1 >= 85) {
+                        signals.push({
+                            time: time,
+                            position: 'aboveBar',
+                            color: '#ef4444',
+                            shape: 'arrowDown',
+                            text: 'OB'
+                        });
+                    }
+                }
+            }
+            ema1Series.setData(ema1Data);
+            ema2Series.setData(ema2Data);
+            ema1Series.setMarkers(signals);
+
+            mainChart.timeScale().fitContent();
+            subChart.timeScale().fitContent();
+        }
+
+        // Utilitas Matematika: Exponential Moving Average (EMA)
+        function calculateEMA(data, period, valueKey = 'close') {
+            const ema = new Array(data.length).fill(null);
+            if (data.length < period) return ema;
+
+            const k = 2 / (period + 1);
+            
+            let sum = 0;
+            for (let i = 0; i < period; i++) {
+                sum += data[i][valueKey];
+            }
+            let prevEMA = sum / period;
+            ema[period - 1] = prevEMA;
+
+            for (let i = period; i < data.length; i++) {
+                const val = data[i][valueKey];
+                prevEMA = (val * k) + (prevEMA * (1 - k));
+                ema[i] = prevEMA;
+            }
+            return ema;
+        }
+
+        // Utilitas Matematika: Normalisasi Harga 0-100 (Stochastic)
+        function calculateStochasticRaw(candles, period = 14) {
+            const raw = [];
+            for (let i = 0; i < candles.length; i++) {
+                const start = Math.max(0, i - period + 1);
+                let highestHigh = -Infinity;
+                let lowestLow = Infinity;
+
+                for (let j = start; j <= i; j++) {
+                    if (candles[j].high > highestHigh) highestHigh = candles[j].high;
+                    if (candles[j].low < lowestLow) lowestLow = candles[j].low;
+                }
+
+                const range = highestHigh - lowestLow;
+                const closePrice = candles[i].close;
+                const value = range > 0 ? ((closePrice - lowestLow) / range) * 100.0 : 50.0;
+                raw.push({ time: candles[i].time, close: value });
+            }
+            return raw;
+        }
+
+        // Generator Data Simulasi Realistis (Adaptif Terhadap Timeframe & Volatilitas)
+        function generateSimulatedData(pair, tf) {
+            const list = [];
+            let price = pair === 'XAU/USD' ? 2350.0 : (pair === 'GBP/USD' ? 1.2750 : 1.0850);
+            
+            // Tentukan skala rentang volatilitas berdasarkan timeframe (D1 punya pergerakan lilin lebih panjang)
+            let tfMultiplier = 1.0;
+            if (tf === '30min') tfMultiplier = 0.7;
+            if (tf === '4h') tfMultiplier = 2.0;
+            if (tf === '1day') tfMultiplier = 4.5;
+
+            const step = (pair === 'XAU/USD' ? 2.5 : 0.0008) * tfMultiplier;
+            let now = new Date();
+
+            // Set waktu ke belakang
+            if (tf === '30min') now.setMinutes(now.getMinutes() - (150 * 30));
+            else if (tf === '1h') now.setHours(now.getHours() - 150);
+            else if (tf === '4h') now.setHours(now.getHours() - (150 * 4));
+            else if (tf === '1day') now.setDate(now.getDate() - 150);
+
+            for (let i = 0; i < 150; i++) {
+                const open = price;
+                const change = (Math.random() - 0.49) * step;
+                const close = price + change;
+                const high = Math.max(open, close) + (Math.random() * step * 0.3);
+                const low = Math.min(open, close) - (Math.random() * step * 0.3);
+
+                const datetime = now.toISOString().replace('T', ' ').substring(0, 19);
+                list.push({ datetime, open, high, low, close });
+
+                price = close;
+
+                // Majukan waktu sesuai timeframe
+                if (tf === '30min') now.setMinutes(now.getMinutes() + 30);
+                else if (tf === '1h') now.setHours(now.getHours() + 1);
+                else if (tf === '4h') now.setHours(now.getHours() + 4);
+                else if (tf === '1day') now.setDate(now.getDate() + 1);
+            }
+            return list;
+        }
+    </script>
 </body>
 </html>
