@@ -6,8 +6,8 @@
     <title>Lite FX Mobile Terminal</title>
     <!-- Tailwind CSS untuk Styling Responsif -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- TradingView Lightweight Charts CDN -->
-    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <!-- Mengunci TradingView Lightweight Charts ke Versi Stabil 4.2.1 (Pencegahan Blank) -->
+    <script src="https://unpkg.com/lightweight-charts@4.2.1/dist/lightweight-charts.standalone.production.js"></script>
 </head>
 <body class="bg-gray-950 text-gray-100 font-sans min-h-screen flex flex-col selection:bg-blue-600 selection:text-white">
 
@@ -112,7 +112,6 @@
         let ema1Series, ema2Series;
         let isUsingFallback = false;
 
-        // Peta label tampilan untuk masing-masing kode timeframe API
         const tfLabels = {
             '30min': 'M30',
             '1h': 'H1',
@@ -150,13 +149,14 @@
 
             // 1. Grafik Utama
             const mainContainer = document.getElementById('main-chart');
+            const mainWidth = mainContainer.clientWidth || 375; // Nilai cadangan jika lebar belum termuat
             mainChart = LightweightCharts.createChart(mainContainer, {
                 ...chartOptions,
-                width: mainContainer.clientWidth,
+                width: mainWidth,
                 height: 320,
             });
 
-            // Series Candlestick
+            // Series Candlestick (Kembali didukung pada Versi 4.2.1)
             candleSeries = mainChart.addCandlestickSeries({
                 upColor: '#10b981',
                 downColor: '#ef4444',
@@ -168,7 +168,7 @@
 
             // Indikator 1: Gaichin Area (MidnightBlue di bawah Low)
             gaichinSeries = mainChart.addAreaSeries({
-                topColor: 'rgba(25, 25, 112, 0.45)', // MidnightBlue dengan Opasitas
+                topColor: 'rgba(25, 25, 112, 0.45)', // MidnightBlue transparan
                 bottomColor: 'rgba(25, 25, 112, 0.05)',
                 lineColor: 'transparent',
                 lineWidth: 0,
@@ -195,9 +195,10 @@
 
             // 2. Grafik Subwindow (EMA 2-21)
             const subContainer = document.getElementById('sub-chart');
+            const subWidth = subContainer.clientWidth || 375;
             subChart = LightweightCharts.createChart(subContainer, {
                 ...chartOptions,
-                width: subContainer.clientWidth,
+                width: subWidth,
                 height: 180,
                 rightPriceScale: {
                     scaleMargins: { top: 0.1, bottom: 0.1 },
@@ -250,14 +251,39 @@
             const resizeObserver = new ResizeObserver(entries => {
                 for (let entry of entries) {
                     if (entry.target === mainContainer) {
-                        mainChart.resize(entry.contentRect.width, 320);
+                        mainChart.resize(entry.contentRect.width || 375, 320);
                     } else if (entry.target === subContainer) {
-                        subChart.resize(entry.contentRect.width, 180);
+                        subChart.resize(entry.contentRect.width || 375, 180);
                     }
                 }
             });
             resizeObserver.observe(mainContainer);
             resizeObserver.observe(subContainer);
+        }
+
+        // Fungsi Parser Waktu Kustom: Mencegah error NaN pada browser Safari (iPhone/iOS)
+        function parseDateTime(str) {
+            if (!str) return Math.floor(Date.now() / 1000);
+            
+            // Konversi spasi ke format standar ISO 'T'
+            const formatted = str.replace(" ", "T");
+            const d = new Date(formatted);
+            if (!isNaN(d.getTime())) {
+                return Math.floor(d.getTime() / 1000);
+            }
+
+            // Fallback manual jika browser gagal membaca parser standar
+            const parts = str.split(/[- :]/);
+            if (parts.length >= 3) {
+                const year = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10) - 1;
+                const day = parseInt(parts[2], 10);
+                const hour = parts[3] ? parseInt(parts[3], 10) : 0;
+                const min = parts[4] ? parseInt(parts[4], 10) : 0;
+                const sec = parts[5] ? parseInt(parts[5], 10) : 0;
+                return Math.floor(Date.UTC(year, month, day, hour, min, sec) / 1000);
+            }
+            return Math.floor(Date.now() / 1000);
         }
 
         // Fungsi Mengambil Data & Switch Pair/Timeframe
@@ -292,7 +318,6 @@
                 apiBadge.className = 'text-xs bg-blue-950 text-blue-400 px-2.5 py-1 rounded-full font-medium';
                 document.getElementById('status-dot').className = 'w-3 h-3 rounded-full bg-blue-500 animate-pulse';
                 
-                // Hasilkan data simulasi realistis sesuai dengan timeframe terpilih
                 const simulatedData = generateSimulatedData(pair, tf);
                 processAndPlot(simulatedData);
             }
@@ -327,7 +352,7 @@
         // Kalkulasi & Konstruksi Grafik Indikator
         function processAndPlot(rawValues) {
             const candles = rawValues.map(item => {
-                const parsedTime = Math.floor(new Date(item.datetime).getTime() / 1000);
+                const parsedTime = parseDateTime(item.datetime);
                 return {
                     time: parsedTime,
                     open: parseFloat(item.open),
@@ -475,7 +500,6 @@
             const list = [];
             let price = pair === 'XAU/USD' ? 2350.0 : (pair === 'GBP/USD' ? 1.2750 : 1.0850);
             
-            // Tentukan skala rentang volatilitas berdasarkan timeframe (D1 punya pergerakan lilin lebih panjang)
             let tfMultiplier = 1.0;
             if (tf === '30min') tfMultiplier = 0.7;
             if (tf === '4h') tfMultiplier = 2.0;
@@ -484,7 +508,6 @@
             const step = (pair === 'XAU/USD' ? 2.5 : 0.0008) * tfMultiplier;
             let now = new Date();
 
-            // Set waktu ke belakang
             if (tf === '30min') now.setMinutes(now.getMinutes() - (150 * 30));
             else if (tf === '1h') now.setHours(now.getHours() - 150);
             else if (tf === '4h') now.setHours(now.getHours() - (150 * 4));
@@ -497,12 +520,12 @@
                 const high = Math.max(open, close) + (Math.random() * step * 0.3);
                 const low = Math.min(open, close) - (Math.random() * step * 0.3);
 
+                // Buat string tanggal ISO yang aman
                 const datetime = now.toISOString().replace('T', ' ').substring(0, 19);
                 list.push({ datetime, open, high, low, close });
 
                 price = close;
 
-                // Majukan waktu sesuai timeframe
                 if (tf === '30min') now.setMinutes(now.getMinutes() + 30);
                 else if (tf === '1h') now.setHours(now.getHours() + 1);
                 else if (tf === '4h') now.setHours(now.getHours() + 4);
