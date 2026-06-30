@@ -1,347 +1,381 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Forex Signal Analyzer Pro</title>
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-  <style>
-    :root{
-      --bg:#07111f; --panel:#0d1b2a; --panel2:#10233a; --text:#e8eef7; --muted:#8ea4c2;
-      --blue:#3ea6ff; --orange:#ff9f43; --green:#25d366; --red:#ff5d5d; --line:#22344d;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;
-      background:linear-gradient(180deg,#050b14,#07111f 35%,#050b14);
-      color:var(--text);
-    }
-    header{
-      padding:18px 20px; border-bottom:1px solid var(--line);
-      background:rgba(10,20,34,.88); backdrop-filter:blur(12px);
-      position:sticky; top:0; z-index:10;
-    }
-    .head{
-      display:flex; justify-content:space-between; gap:16px; align-items:center; flex-wrap:wrap;
-    }
-    h1{margin:0; font-size:20px}
-    .sub{color:var(--muted); font-size:13px; margin-top:4px}
-    .wrap{padding:14px; max-width:1400px; margin:0 auto}
-    .card{
-      background:linear-gradient(180deg,var(--panel),#091521);
-      border:1px solid var(--line); border-radius:16px;
-      overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.25);
-    }
-    .toolbar{
-      display:flex; gap:10px; flex-wrap:wrap;
-      padding:14px; border-bottom:1px solid var(--line);
-      background:linear-gradient(180deg,var(--panel2),#091521);
-    }
-    .btn{
-      cursor:pointer; border:1px solid #28415f; background:#0c1726; color:var(--text);
-      padding:10px 14px; border-radius:12px; font-weight:700;
-    }
-    .btn.active{background:#15314f; border-color:#2e5c8f}
-    .chartBox{height:680px; position:relative}
-    #chart{position:absolute; inset:0}
-    .content{
-      display:grid; grid-template-columns:1fr; gap:14px; margin-top:14px;
-    }
-    .panel{
-      padding:16px; background:linear-gradient(180deg,var(--panel2),#091521);
-      border:1px solid var(--line); border-radius:16px;
-    }
-    .grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
-    .kpi{padding:12px; border-radius:14px; background:#0a1625; border:1px solid #1d2d44}
-    .label{color:var(--muted); font-size:12px}
-    .value{font-size:20px; font-weight:800; margin-top:4px}
-    .signal{
-      display:flex; align-items:center; gap:10px; font-weight:800; font-size:18px
-    }
-    .dot{width:12px; height:12px; border-radius:50%}
-    .note{color:var(--muted); font-size:12px; line-height:1.6}
-    .list{display:grid; gap:8px; margin-top:10px}
-    .item{
-      padding:11px 12px; border:1px solid #22344d; border-radius:12px; background:#0a1524
-    }
-    @media (max-width: 900px){
-      .grid{grid-template-columns:1fr 1fr}
-      .chartBox{height:520px}
-    }
-    @media (max-width: 560px){
-      .grid{grid-template-columns:1fr}
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RIBBON // FX Terminal</title>
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+  :root{
+    --bg:#0a0e14;
+    --panel:#11161f;
+    --line:#1c2430;
+    --ink:#d8dee9;
+    --dim:#5b6577;
+    --blue:#3aa0ff;
+    --orange:#ff8a3a;
+    --pink:#ff3a8c;
+    --green:#3affa0;
+    --mono:'JetBrains Mono','SF Mono',Consolas,monospace;
+    --disp:'Sora','Inter',sans-serif;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--mono);
+    min-height:100vh;
+    display:flex; justify-content:center;
+  }
+  .col{
+    width:100%; max-width:720px;
+    border-left:1px solid var(--line); border-right:1px solid var(--line);
+    min-height:100vh;
+    background:
+      linear-gradient(180deg, rgba(58,160,255,.05), transparent 200px);
+  }
+  header{
+    padding:22px 18px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  header .tag{
+    font-size:11px; letter-spacing:.2em; color:var(--dim); text-transform:uppercase;
+  }
+  header h1{
+    font-family:var(--disp); font-weight:800; font-size:26px; margin:4px 0 0;
+    letter-spacing:-.01em;
+  }
+  header h1 span{color:var(--blue);}
+
+  .bar{
+    display:flex; flex-wrap:wrap; gap:8px;
+    padding:14px 18px; border-bottom:1px solid var(--line);
+    background:var(--panel);
+  }
+  .grp{display:flex; gap:6px; flex-wrap:wrap;}
+  button.chip{
+    background:transparent; border:1px solid var(--line); color:var(--dim);
+    font-family:var(--mono); font-size:12px; font-weight:500;
+    padding:7px 12px; border-radius:3px; cursor:pointer;
+    transition:.15s;
+  }
+  button.chip:hover{border-color:var(--blue); color:var(--ink);}
+  button.chip.active{background:var(--blue); border-color:var(--blue); color:#04101e; font-weight:700;}
+  button.refresh{
+    margin-left:auto; background:transparent; border:1px solid var(--green);
+    color:var(--green); font-family:var(--mono); font-size:12px; font-weight:700;
+    padding:7px 14px; border-radius:3px; cursor:pointer; letter-spacing:.05em;
+  }
+  button.refresh:hover{background:var(--green); color:#04101e;}
+  button.refresh.spin::before{content:'↻ ';}
+
+  .keyrow{
+    padding:10px 18px; border-bottom:1px solid var(--line);
+    font-size:11px; color:var(--dim); display:flex; gap:10px; align-items:center;
+  }
+  .keyrow input{
+    flex:1; background:var(--bg); border:1px solid var(--line); color:var(--ink);
+    font-family:var(--mono); font-size:12px; padding:6px 8px; border-radius:3px;
+  }
+  .keyrow a{color:var(--blue); text-decoration:none;}
+
+  .price{
+    padding:14px 18px; border-bottom:1px solid var(--line);
+    display:flex; align-items:baseline; gap:12px;
+  }
+  .price .val{font-family:var(--disp); font-size:30px; font-weight:700;}
+  .price .chg{font-size:13px; font-weight:600; padding:2px 8px; border-radius:3px;}
+  .chg.up{color:var(--green); background:rgba(58,255,160,.1);}
+  .chg.down{color:var(--pink); background:rgba(255,58,140,.1);}
+
+  .panel-label{
+    font-size:10px; color:var(--dim); letter-spacing:.15em; text-transform:uppercase;
+    padding:10px 18px 4px;
+  }
+  #mainChart{width:100%; height:380px;}
+  #subChart{width:100%; height:150px; border-top:1px solid var(--line);}
+
+  .legend{
+    display:flex; gap:14px; flex-wrap:wrap; padding:10px 18px 16px; font-size:11px;
+  }
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:5px; vertical-align:-1px;}
+
+  .status{
+    padding:12px 18px 24px; font-size:11px; color:var(--dim);
+    border-top:1px solid var(--line);
+    display:flex; justify-content:space-between;
+  }
+  .status .dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--dim); margin-right:6px;}
+  .status .dot.live{background:var(--green); box-shadow:0 0 6px var(--green);}
+
+  footer{padding:16px 18px 28px; font-size:10px; color:var(--dim); line-height:1.6;}
+  footer code{color:var(--blue);}
+</style>
 </head>
 <body>
+<div class="col">
+
   <header>
-    <div class="head">
-      <div>
-        <h1>Forex Signal Analyzer Pro</h1>
-        <div class="sub">Candlestick + Symmetrical MA Ribbon + Box Histogram · Pair GBP/USD & EUR/USD</div>
-      </div>
-      <div class="sub">API Key: <strong>8cd5e84fa4564322b907aaddac29b059</strong></div>
-    </div>
+    <div class="tag">Symmetrical Ribbon · MQL4 → Web</div>
+    <h1>FX <span>TERMINAL</span></h1>
   </header>
 
-  <div class="wrap">
-    <div class="card">
-      <div class="toolbar">
-        <button class="btn active" data-pair="GBP/USD">GBP/USD</button>
-        <button class="btn" data-pair="EUR/USD">EUR/USD</button>
-        <button class="btn active" data-tf="H1">H1</button>
-        <button class="btn" data-tf="H4">H4</button>
-        <button class="btn" data-tf="D1">D1</button>
-      </div>
-      <div class="chartBox">
-        <div id="chart"></div>
-      </div>
+  <div class="bar">
+    <div class="grp" id="symGrp">
+      <button class="chip" data-sym="EUR/USD">EURUSD</button>
+      <button class="chip" data-sym="GBP/USD">GBPUSD</button>
+      <button class="chip" data-sym="XAU/USD">XAUUSD</button>
     </div>
-
-    <div class="content">
-      <div class="panel">
-        <div class="grid">
-          <div class="kpi"><div class="label">Pair</div><div class="value" id="pairName">GBP/USD</div></div>
-          <div class="kpi"><div class="label">Timeframe</div><div class="value" id="tfName">H1</div></div>
-          <div class="kpi"><div class="label">Harga Terakhir</div><div class="value" id="lastPrice">-</div></div>
-          <div class="kpi"><div class="label">Sinyal</div><div class="value" id="signalText">-</div></div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <div class="signal"><span class="dot" id="signalDot"></span><span id="signalMain">Menunggu data...</span></div>
-        <div class="note" id="signalNote" style="margin-top:10px">
-          Fokus analisis memakai Fast EMA(10), Slow EMA(30), Mirror MA = 2 x Slow - Fast, lalu box histogram untuk area trend.
-        </div>
-      </div>
-
-      <div class="panel">
-        <div style="font-weight:800">Ringkasan Analisis</div>
-        <div class="list" id="analysisList"></div>
-      </div>
-
-      <div class="panel note">
-        Layout ini sudah disederhanakan jadi satu kolom, tanpa sidebar, supaya lebih cocok untuk halaman GitHub Pages yang fokus ke chart utama.
-      </div>
+    <div class="grp" id="tfGrp">
+      <button class="chip" data-tf="30min">M30</button>
+      <button class="chip" data-tf="1h">H1</button>
+      <button class="chip" data-tf="4h">H4</button>
+      <button class="chip" data-tf="1day">D1</button>
     </div>
+    <button class="refresh" id="refreshBtn">REFRESH</button>
   </div>
 
+  <div class="keyrow">
+    API KEY:
+    <input id="apiKey" placeholder="Twelve Data API key (free at twelvedata.com)" value="8cd5e84fa4564322b907aaddac29b059" />
+    <a href="https://twelvedata.com/pricing" target="_blank">get key ↗</a>
+  </div>
+
+  <div class="price">
+    <div class="val" id="priceVal">—</div>
+    <div class="chg" id="priceChg">—</div>
+  </div>
+
+  <div class="panel-label">Main · Symmetrical MA Ribbon + Vertical Box Histogram (Gaichi)</div>
+  <div id="mainChart"></div>
+  <div class="legend">
+    <span><i style="background:var(--blue)"></i>Fast MA</span>
+    <span><i style="background:var(--orange)"></i>Mirror MA</span>
+    <span><i style="background:#7e8aa3"></i>Slow MA (base)</span>
+    <span><i style="background:var(--pink)"></i>Box / Gaichi zone</span>
+  </div>
+
+  <div class="panel-label">Sub · EMA Oscillator (2 / 21) Jenuh Beli/Jual</div>
+  <div id="subChart"></div>
+  <div class="legend">
+    <span><i style="background:var(--blue)"></i>EMA1 (2)</span>
+    <span><i style="background:#ff4d4d"></i>EMA2 (21)</span>
+    <span><i style="background:var(--green)"></i>▲ Oversold &lt;15</span>
+    <span><i style="background:#ff4d4d"></i>▼ Overbought &gt;85</span>
+  </div>
+
+  <div class="status">
+    <span><span class="dot" id="statusDot"></span><span id="statusText">idle</span></span>
+    <span id="lastUpdate">—</span>
+  </div>
+
+  <footer>
+    Logic ported from <code>Symmetrical_MA_Ribbon.mq4</code>, <code>EMA_Subwindow_2_21.mq4</code> and
+    <code>Vertical Box Histogram.mq4</code>. Mirror MA = 2×SlowMA − FastMA. Oscillator = EMA-smoothed
+    Stochastic %K (period 14) of EMA1/EMA2. Data via Twelve Data REST API — bring your own free key,
+    stored only in this tab's memory, never saved. Single-file, deploy as-is on GitHub Pages.
+  </footer>
+
+</div>
+
 <script>
-const chartEl = document.getElementById('chart');
-const pairNameEl = document.getElementById('pairName');
-const tfNameEl = document.getElementById('tfName');
-const lastPriceEl = document.getElementById('lastPrice');
-const signalTextEl = document.getElementById('signalText');
-const signalMainEl = document.getElementById('signalMain');
-const signalDotEl = document.getElementById('signalDot');
-const signalNoteEl = document.getElementById('signalNote');
-const analysisListEl = document.getElementById('analysisList');
+const FAST_MA = 10, SLOW_MA = 30;
+const EMA1_P = 2, EMA2_P = 21, STOCH_P = 14, LVL_UP = 85, LVL_LO = 15;
 
-let chart, candleSeries, maFast, maMirror, maSlow, boxSeries;
-let activePair = 'GBP/USD';
-let activeTf = 'H1';
+let state = { symbol: 'EUR/USD', tf: '1h', key: '8cd5e84fa4564322b907aaddac29b059' };
+let liveTimer = null;
 
-const pairMap = { 'GBP/USD': ['GBP','USD'], 'EUR/USD': ['EUR','USD'] };
-const tfMap = { H1: '60min', H4: '240min', D1: 'daily' };
+const symGrp = document.getElementById('symGrp');
+const tfGrp = document.getElementById('tfGrp');
+symGrp.querySelector('[data-sym="EUR/USD"]').classList.add('active');
+tfGrp.querySelector('[data-tf="1h"]').classList.add('active');
 
+symGrp.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  [...symGrp.children].forEach(c=>c.classList.remove('active'));
+  b.classList.add('active'); state.symbol = b.dataset.sym; load();
+});
+tfGrp.addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  [...tfGrp.children].forEach(c=>c.classList.remove('active'));
+  b.classList.add('active'); state.tf = b.dataset.tf; load();
+});
+document.getElementById('apiKey').addEventListener('change', e=>{ state.key = e.target.value.trim(); });
+document.getElementById('refreshBtn').addEventListener('click', load);
+
+// ---- charts ----
+const chartOpts = {
+  layout:{ background:{color:'transparent'}, textColor:'#5b6577', fontFamily:'JetBrains Mono' },
+  grid:{ vertLines:{color:'#1c2430'}, horzLines:{color:'#1c2430'} },
+  rightPriceScale:{ borderColor:'#1c2430' },
+  timeScale:{ borderColor:'#1c2430' },
+  crosshair:{ mode:0 },
+};
+const mainChart = LightweightCharts.createChart(document.getElementById('mainChart'), {...chartOpts, height:380});
+const candleSeries = mainChart.addCandlestickSeries({ upColor:'#3affa0', downColor:'#ff3a8c', borderVisible:false, wickUpColor:'#3affa0', wickDownColor:'#ff3a8c' });
+const fastLine = mainChart.addLineSeries({ color:'#3aa0ff', lineWidth:2 });
+const mirrorLine = mainChart.addLineSeries({ color:'#ff8a3a', lineWidth:2 });
+const slowLine = mainChart.addLineSeries({ color:'#7e8aa3', lineWidth:1, lineStyle:2 });
+const blueHist = mainChart.addHistogramSeries({ color:'rgba(58,160,255,.35)', priceFormat:{type:'volume'}, base:0 });
+
+const subChart = LightweightCharts.createChart(document.getElementById('subChart'), {...chartOpts, height:150});
+subChart.applyOptions({ rightPriceScale:{ borderColor:'#1c2430' } });
+const ema1Line = subChart.addLineSeries({ color:'#3aa0ff', lineWidth:2 });
+const ema2Line = subChart.addLineSeries({ color:'#ff4d4d', lineWidth:2 });
+const arrowUp = subChart.addLineSeries({ color:'#3affa0', lineWidth:0, pointMarkersVisible:true, pointMarkersRadius:4, lastValueVisible:false, priceLineVisible:false });
+const arrowDown = subChart.addLineSeries({ color:'#ff4d4d', lineWidth:0, pointMarkersVisible:true, pointMarkersRadius:4, lastValueVisible:false, priceLineVisible:false });
+function fit(){
+  const mw = document.getElementById('mainChart').clientWidth || window.innerWidth;
+  const sw = document.getElementById('subChart').clientWidth || window.innerWidth;
+  mainChart.applyOptions({width: mw});
+  subChart.applyOptions({width: sw});
+}
+window.addEventListener('resize', fit);
+const ro = new ResizeObserver(fit);
+ro.observe(document.getElementById('mainChart'));
+fit();
+setTimeout(fit, 50);
+setTimeout(fit, 300);
+mainChart.timeScale().subscribeVisibleLogicalRangeChange(r=>{ subChart.timeScale().setVisibleLogicalRange(r); });
+subChart.timeScale().subscribeVisibleLogicalRangeChange(r=>{ mainChart.timeScale().setVisibleLogicalRange(r); });
+
+// ---- indicator math (ported from the MQL4 sources) ----
 function ema(values, period){
-  const out = [];
-  const k = 2 / (period + 1);
-  let prev = null;
-  for (let i = 0; i < values.length; i++){
-    const v = values[i];
-    if (prev === null){ prev = v; out.push(v); }
-    else { prev = v * k + prev * (1 - k); out.push(prev); }
-  }
+  const a = 2/(period+1); const out = new Array(values.length);
+  out[0] = values[0];
+  for(let i=1;i<values.length;i++) out[i] = out[i-1] + a*(values[i]-out[i-1]);
   return out;
 }
-
-function toChartTime(ts){ return Math.floor(new Date(ts).getTime() / 1000); }
-function fmt(n){ return Number(n).toFixed(5); }
-
-function signalFrom(fast, slow){
-  if (fast > slow) return { text:'BUY', color:'#25d366', note:'Fast EMA di atas Slow EMA, bias bullish.' };
-  if (fast < slow) return { text:'SELL', color:'#ff5d5d', note:'Fast EMA di bawah Slow EMA, bias bearish.' };
-  return { text:'NEUTRAL', color:'#f2c94c', note:'Fast EMA dan Slow EMA sedang netral.' };
+function buildRibbon(candles){
+  const closes = candles.map(c=>c.close);
+  const fast = ema(closes, FAST_MA);
+  const slow = ema(closes, SLOW_MA);
+  const mirror = fast.map((f,i)=> 2*slow[i] - f);
+  const blue = candles.map((c,i)=>{
+    if(fast[i] > slow[i]) return { time:c.time, value: fast[i]-slow[i], color:'rgba(58,160,255,.45)' };
+    if(fast[i] < slow[i]) return { time:c.time, value: mirror[i]-slow[i], color:'rgba(255,138,58,.45)' };
+    return { time:c.time, value:0 };
+  });
+  return {
+    fast: candles.map((c,i)=>({time:c.time, value:fast[i]})),
+    mirror: candles.map((c,i)=>({time:c.time, value:mirror[i]})),
+    slow: candles.map((c,i)=>({time:c.time, value:slow[i]})),
+    blue
+  };
+}
+function buildOscillator(candles){
+  const n = candles.length;
+  const stoch = candles.map((c,i)=>{
+    const lo = Math.max(0, i-STOCH_P+1);
+    const seg = candles.slice(lo, i+1);
+    const hh = Math.max(...seg.map(x=>x.high));
+    const ll = Math.min(...seg.map(x=>x.low));
+    const range = hh-ll;
+    return range>0 ? (c.close-ll)/range*100 : 50;
+  });
+  const e1 = ema(stoch, EMA1_P);
+  const e2 = ema(stoch, EMA2_P);
+  const up=[], down=[];
+  candles.forEach((c,i)=>{
+    if(e1[i] <= LVL_LO) up.push({time:c.time, value:e1[i]-4});
+    if(e1[i] >= LVL_UP) down.push({time:c.time, value:e1[i]+4});
+  });
+  return {
+    e1: candles.map((c,i)=>({time:c.time, value:e1[i]})),
+    e2: candles.map((c,i)=>({time:c.time, value:e2[i]})),
+    up, down
+  };
 }
 
-function makeFallback(pair, tf){
-  const base = pair === 'GBP/USD' ? 1.2720 : 1.0850;
-  const bars = tf === 'D1' ? 120 : tf === 'H4' ? 160 : 180;
-  const step = tf === 'D1' ? 24 * 60 * 60 * 1000 : tf === 'H4' ? 4 * 60 * 60 * 1000 : 60 * 60 * 1000;
-  const arr = [];
-  let p = base;
-  const now = Date.now();
-  for (let i = bars; i >= 0; i--){
-    const t = now - i * step;
-    const drift = Math.sin(i / 8) * 0.0012 + Math.cos(i / 13) * 0.0007;
-    const open = p;
-    const close = p + drift + (Math.random() - 0.5) * 0.0008;
-    const high = Math.max(open, close) + (Math.random() * 0.0006);
-    const low = Math.min(open, close) - (Math.random() * 0.0006);
-    arr.push({
-      time: toChartTime(t),
-      open: +open.toFixed(5),
-      high: +high.toFixed(5),
-      low: +low.toFixed(5),
-      close: +close.toFixed(5)
-    });
-    p = close;
+// ---- data fetch ----
+function setStatus(text, live){
+  document.getElementById('statusText').textContent = text;
+  document.getElementById('statusDot').classList.toggle('live', !!live);
+}
+async function fetchCandles(){
+  if(!state.key){
+    setStatus('masukkan API key Twelve Data', false);
+    return null;
   }
-  return arr;
-}
-
-async function fetchFX(pair, tf){
-  const [from, to] = pairMap[pair];
-  const key = '8cd5e84fa4564322b907aaddac29b059';
-  const interval = tfMap[tf];
-  let url = '';
-  if (tf === 'D1'){
-    url = `https://www.alphavantage.co/query?function=FX_DAILY&from_symbol=${from}&to_symbol=${to}&outputsize=compact&apikey=${key}`;
-    const r = await fetch(url);
-    const j = await r.json();
-    const ts = j['Time Series FX (Daily)'];
-    if (!ts) throw new Error(j['Note'] || j['Error Message'] || 'No daily data');
-    return Object.entries(ts).map(([time, v]) => ({
-      time: toChartTime(time),
-      open: +v['1. open'],
-      high: +v['2. high'],
-      low: +v['3. low'],
-      close: +v['4. close']
-    })).sort((a,b)=>a.time-b.time);
-  } else {
-    url = `https://www.alphavantage.co/query?function=FX_INTRADAY&from_symbol=${from}&to_symbol=${to}&interval=${interval}&outputsize=compact&apikey=${key}`;
-    const r = await fetch(url);
-    const j = await r.json();
-    const ts = j[`Time Series FX (${interval})`];
-    if (!ts) throw new Error(j['Note'] || j['Error Message'] || 'No intraday data');
-    return Object.entries(ts).map(([time, v]) => ({
-      time: toChartTime(time),
-      open: +v['1. open'],
-      high: +v['2. high'],
-      low: +v['3. low'],
-      close: +v['4. close']
-    })).sort((a,b)=>a.time-b.time);
+  const url = `https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(state.symbol)}&interval=${state.tf}&outputsize=300&apikey=${state.key}`;
+  const res = await fetch(url);
+  const json = await res.json();
+  if(json.status === 'error' || !json.values){
+    setStatus('error: ' + (json.message || 'gagal mengambil data'), false);
+    return null;
   }
-}
-
-function drawBoxes(data){
-  return data.map((d, i) => ({
-    time: d.time,
-    value: d.close >= d.open ? d.low : d.high,
-    color: d.close >= d.open ? 'rgba(37,211,102,0.16)' : 'rgba(255,77,166,0.16)'
+  return json.values.slice().reverse().map(v=>({
+    time: Math.floor(new Date(v.datetime.replace(' ','T')+'Z').getTime()/1000),
+    open: +v.open, high: +v.high, low: +v.low, close: +v.close
   }));
 }
 
-function renderAnalysis(data){
-  const closes = data.map(d => d.close);
-  const fast = ema(closes, 10);
-  const slow = ema(closes, 30);
-  const mirror = closes.map((_, i) => (2 * slow[i]) - fast[i]);
-  const idx = data.length - 1;
-  const f = fast[idx], s = slow[idx], m = mirror[idx];
-  const sig = signalFrom(f, s);
-
-  signalTextEl.textContent = sig.text;
-  signalMainEl.textContent = sig.text + ' · ' + activePair + ' · ' + activeTf;
-  signalMainEl.style.color = sig.color;
-  signalDotEl.style.background = sig.color;
-  signalNoteEl.textContent = sig.note;
-  lastPriceEl.textContent = fmt(data[idx].close);
-  pairNameEl.textContent = activePair;
-  tfNameEl.textContent = activeTf;
-
-  analysisListEl.innerHTML = [
-    `<div class="item">Fast EMA(10): ${fmt(f)}</div>`,
-    `<div class="item">Slow EMA(30): ${fmt(s)}</div>`,
-    `<div class="item">Mirror MA: ${fmt(m)}</div>`,
-    `<div class="item">Trend: ${f > s ? 'Bullish ribbon' : f < s ? 'Bearish ribbon' : 'Flat ribbon'}</div>`,
-    `<div class="item">Data bars: ${data.length}</div>`
-  ].join('');
-  
-  maFast.setData(data.map((d, i) => ({ time: d.time, value: fast[i] })));
-  maSlow.setData(data.map((d, i) => ({ time: d.time, value: slow[i] })));
-  maMirror.setData(data.map((d, i) => ({ time: d.time, value: mirror[i] })));
-  boxSeries.setData(drawBoxes(data));
-}
-
-async function loadData(){
-  signalMainEl.textContent = 'Memuat data...';
-  signalTextEl.textContent = '-';
-  signalDotEl.style.background = '#8ea4c2';
+async function fetchLivePrice(){
+  if(!state.key) return;
   try{
-    const data = await fetchFX(activePair, activeTf);
-    candleSeries.setData(data);
-    renderAnalysis(data);
-  }catch(e){
-    const data = makeFallback(activePair, activeTf);
-    candleSeries.setData(data);
-    renderAnalysis(data);
-    signalNoteEl.textContent = 'Fallback data dipakai karena API tidak dapat diakses langsung dari browser atau ada limit rate.';
-  }
-  chart.timeScale().fitContent();
-}
-
-function init(){
-  chart = LightweightCharts.createChart(chartEl, {
-    layout: { background: { color: '#07111f' }, textColor: '#d8e6f7' },
-    grid: {
-      vertLines: { color: 'rgba(255,255,255,0.04)' },
-      horzLines: { color: 'rgba(255,255,255,0.04)' }
-    },
-    crosshair: { mode: 1 },
-    rightPriceScale: { borderColor: '#22344d' },
-    timeScale: { borderColor: '#22344d', timeVisible: true, secondsVisible: false },
-    watermark: {
-      visible: true,
-      text: 'Forex Signal Analyzer',
-      color: 'rgba(255,255,255,0.05)',
-      fontSize: 18
+    const url = `https://api.twelvedata.com/price?symbol=${encodeURIComponent(state.symbol)}&apikey=${state.key}`;
+    const res = await fetch(url);
+    const json = await res.json();
+    if(json.price){
+      const last = +json.price;
+      document.getElementById('priceVal').textContent = last.toFixed(state.symbol==='XAU/USD'?2:5);
+      document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+      setStatus('live', true);
     }
-  });
-
-  candleSeries = chart.addSeries(LightweightCharts.CandlestickSeries, {
-    upColor: '#25d366',
-    downColor: '#ff5d5d',
-    borderUpColor: '#25d366',
-    borderDownColor: '#ff5d5d',
-    wickUpColor: '#25d366',
-    wickDownColor: '#ff5d5d'
-  });
-
-  maFast = chart.addSeries(LightweightCharts.LineSeries, { color: '#3ea6ff', lineWidth: 2 });
-  maMirror = chart.addSeries(LightweightCharts.LineSeries, { color: '#ff9f43', lineWidth: 2 });
-  maSlow = chart.addSeries(LightweightCharts.LineSeries, { color: '#8b93a7', lineWidth: 1 });
-
-  boxSeries = chart.addSeries(LightweightCharts.AreaSeries, {
-    lineColor: 'rgba(255,77,166,0)',
-    topColor: 'rgba(255,77,166,0.22)',
-    bottomColor: 'rgba(255,77,166,0.02)',
-    lineWidth: 0
-  });
-
-  window.addEventListener('resize', () => chart.resize(chartEl.clientWidth, chartEl.clientHeight));
-
-  document.querySelectorAll('.btn[data-pair]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activePair = btn.dataset.pair;
-      document.querySelectorAll('.btn[data-pair]').forEach(b => b.classList.toggle('active', b.dataset.pair === activePair));
-      loadData();
-    });
-  });
-
-  document.querySelectorAll('.btn[data-tf]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeTf = btn.dataset.tf;
-      document.querySelectorAll('.btn[data-tf]').forEach(b => b.classList.toggle('active', b.dataset.tf === activeTf));
-      loadData();
-    });
-  });
-
-  loadData();
+  }catch(err){ /* silent fail, keep last good price */ }
+}
+function startLivePolling(){
+  if(liveTimer) clearInterval(liveTimer);
+  fetchLivePrice();
+  liveTimer = setInterval(fetchLivePrice, 5000);
 }
 
-init();
+async function load(){
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spin'); btn.textContent = 'LOADING…';
+  setStatus('mengambil data…', false);
+  try{
+    const candles = await fetchCandles();
+    if(!candles){ btn.classList.remove('spin'); btn.textContent='REFRESH'; return; }
+
+    candleSeries.setData(candles);
+    const r = buildRibbon(candles);
+    fastLine.setData(r.fast);
+    mirrorLine.setData(r.mirror);
+    slowLine.setData(r.slow);
+    blueHist.setData(r.blue);
+
+    const o = buildOscillator(candles);
+    ema1Line.setData(o.e1);
+    ema2Line.setData(o.e2);
+    arrowUp.setData(o.up);
+    arrowDown.setData(o.down);
+
+    fit();
+    mainChart.timeScale().fitContent();
+    subChart.timeScale().fitContent();
+
+    const last = candles[candles.length-1];
+    const prev = candles[candles.length-2] || last;
+    const chg = last.close - prev.close;
+    const pct = (chg/prev.close*100).toFixed(3);
+    document.getElementById('priceVal').textContent = last.close.toFixed(state.symbol==='XAU/USD'?2:5);
+    const chgEl = document.getElementById('priceChg');
+    chgEl.textContent = (chg>=0?'+':'') + chg.toFixed(5) + ' (' + pct + '%)';
+    chgEl.className = 'chg ' + (chg>=0?'up':'down');
+
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+    setStatus('live', true);
+    startLivePolling();
+  }catch(err){
+    setStatus('error: ' + err.message, false);
+  }
+  btn.classList.remove('spin'); btn.textContent = 'REFRESH';
+}
+
+setStatus('idle — memuat data awal…', false);
+state.key = document.getElementById('apiKey').value.trim();
+load();
 </script>
 </body>
 </html>
