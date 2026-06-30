@@ -152,7 +152,8 @@
     <span><i style="background:var(--blue)"></i>Fast MA</span>
     <span><i style="background:var(--orange)"></i>Mirror MA</span>
     <span><i style="background:#7e8aa3"></i>Slow MA (base)</span>
-    <span><i style="background:var(--pink)"></i>Box / Gaichi zone</span>
+    <span><i style="background:rgba(58,160,255,.6)"></i>Bullish zone (gaichi)</span>
+    <span><i style="background:rgba(255,138,58,.6)"></i>Bearish zone (gaichi)</span>
   </div>
 
   <div class="panel-label">Sub · EMA Oscillator (2 / 21) Jenuh Beli/Jual</div>
@@ -216,7 +217,8 @@ const candleSeries = mainChart.addCandlestickSeries({ upColor:'#3affa0', downCol
 const fastLine = mainChart.addLineSeries({ color:'#3aa0ff', lineWidth:2 });
 const mirrorLine = mainChart.addLineSeries({ color:'#ff8a3a', lineWidth:2 });
 const slowLine = mainChart.addLineSeries({ color:'#7e8aa3', lineWidth:1, lineStyle:2 });
-const blueHist = mainChart.addHistogramSeries({ color:'rgba(58,160,255,.35)', priceFormat:{type:'volume'}, base:0 });
+const blueHist = mainChart.addHistogramSeries({ color:'rgba(58,160,255,.45)', priceScaleId:'gaichi', base:0 });
+mainChart.priceScale('gaichi').applyOptions({ scaleMargins:{ top:0.82, bottom:0 }, visible:false });
 
 const subChart = LightweightCharts.createChart(document.getElementById('subChart'), {...chartOpts, height:150});
 subChart.applyOptions({ rightPriceScale:{ borderColor:'#1c2430' } });
