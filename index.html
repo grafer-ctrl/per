@@ -161,6 +161,8 @@
                 borderDownColor: '#ef4444',
                 wickUpColor: '#10b981',
                 wickDownColor: '#ef4444',
+                priceLineVisible: false, // Perbaikan: Menghilangkan garis horizontal harga berjalan
+                lastValueVisible: false, // Perbaikan: Menghilangkan angka label harga berjalan di sumbu kanan
             });
 
             gaichinSeries = mainChart.addAreaSeries({
@@ -169,27 +171,27 @@
                 lineColor: 'transparent',
                 lineWidth: 0,
                 priceLineVisible: false,
-                lastValueVisible: false, // Perbaikan: Menghapus label harga indikator di sumbu kanan
+                lastValueVisible: false, 
             });
 
             fastMASeries = mainChart.addLineSeries({
                 color: '#1e90ff', 
                 lineWidth: 1.5,
                 priceLineVisible: false,
-                lastValueVisible: false, // Perbaikan: Menghapus label harga indikator di sumbu kanan
+                lastValueVisible: false, 
             });
             mirrorMASeries = mainChart.addLineSeries({
                 color: '#ff8c00', 
                 lineWidth: 1.5,
                 priceLineVisible: false,
-                lastValueVisible: false, // Perbaikan: Menghapus label harga indikator di sumbu kanan
+                lastValueVisible: false, 
             });
             baseMASeries = mainChart.addLineSeries({
                 color: '#808080', 
                 lineWidth: 1.2,
                 lineStyle: LightweightCharts.LineStyle.Dotted,
                 priceLineVisible: false,
-                lastValueVisible: false, // Perbaikan: Menghapus label harga indikator di sumbu kanan
+                lastValueVisible: false, 
             });
 
             // 2. Grafik Subwindow (EMA 2-21)
@@ -208,31 +210,31 @@
 
             ema1Series = subChart.addLineSeries({
                 color: '#2563eb', 
-                lineWidth: 1.2, // Perbaikan: Diubah dari 2 menjadi 1.2 agar garis tipis dan halus
+                lineWidth: 1.0, // Perbaikan: Dibuat tipis (ketebalan minimal 1.0, tidak bold)
                 priceLineVisible: false,
-                lastValueVisible: false, // Menghapus label harga indikator pada subwindow agar tidak bertumpuk
+                lastValueVisible: false, 
             });
             ema2Series = subChart.addLineSeries({
                 color: '#dc2626', 
-                lineWidth: 1.2, // Perbaikan: Diubah dari 2 menjadi 1.2 agar garis tipis dan halus
+                lineWidth: 1.0, // Perbaikan: Dibuat tipis (ketebalan minimal 1.0, tidak bold)
                 priceLineVisible: false,
-                lastValueVisible: false, // Menghapus label harga indikator pada subwindow agar tidak bertumpuk
+                lastValueVisible: false, 
             });
 
             // Buat level statis 85, 50, 15 pada subwindow
-            const createLevelLine = (price, label) => {
+            const createLevelLine = (price) => {
                 ema1Series.createPriceLine({
                     price: price,
-                    color: '#4b5563',
+                    color: '#374151', 
                     lineWidth: 1,
                     lineStyle: LightweightCharts.LineStyle.Dotted,
-                    axisLabelVisible: true,
-                    title: label,
+                    axisLabelVisible: false, // Perbaikan: Menghilangkan kotak harga statis (85.00, 50.00, 15.00) di sumbu kanan
+                    title: '', // Perbaikan: Mengosongkan judul melayang "OB 85" agar area grafik bersih
                 });
             };
-            createLevelLine(85, 'OB 85');
-            createLevelLine(50, 'MID 50');
-            createLevelLine(15, 'OS 15');
+            createLevelLine(85);
+            createLevelLine(50);
+            createLevelLine(15);
 
             let isScaling = false;
             mainChart.timeScale().subscribeVisibleTimeRangeChange(range => {
